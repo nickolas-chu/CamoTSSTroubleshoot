@@ -394,7 +394,8 @@ class get_TSS_count():
                 transcriptdict[newname1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
         #print(transcriptdict)
 
-
+        with open('transcriptdict.pkl', 'wb') as f:
+            pickle.dump(transcriptdict, f)
 
         return transcriptdict
 
@@ -435,7 +436,9 @@ class get_TSS_count():
         print('do annotation Time elapsed',int(time.time()-start_time),'seconds.')
         # print(extendls)
         # print(regiondf)
-
+        regiondf=pd.DataFrame(d)
+        extendls.to_csv('extendls.csv')
+        regiondf.to_csv('regiondf.csv')
         return extendls,regiondf
 
 
@@ -464,7 +467,9 @@ class get_TSS_count():
 
 
         finaldf.fillna(0,inplace=True)
+        finaldf.to_csv('finaldf.csv')
         adata=ad.AnnData(finaldf)
+        adata.write('adata.h5ad')
         vardf=pd.DataFrame(adata.var.copy())
         vardf.reset_index(inplace=True)
         vardf.columns=['transcript_id']
