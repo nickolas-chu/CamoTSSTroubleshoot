@@ -1,4 +1,4 @@
-import numpy as np
+dimport numpy as np
 import pandas as pd
 import os
 import pickle
@@ -436,8 +436,9 @@ class get_TSS_count():
         print('do annotation Time elapsed',int(time.time()-start_time),'seconds.')
         # print(extendls)
         # print(regiondf)
-        regiondf=pd.DataFrame(d)
-        extendls.to_csv('extendls.csv')
+        # Convert extendls to a DataFrame and write to a CSV file
+        extendls_df = pd.DataFrame(extendls, columns=['transcript_id', 'details'])
+        extendls_df.to_csv('extendls.csv', index=False)
         regiondf.to_csv('regiondf.csv')
         return extendls,regiondf
 
