@@ -418,9 +418,9 @@ class get_TSS_count():
             transcriptdictls=pool.map_async(self._do_anno_and_filter,inputpar).get()
 
 
-        # tss_output=self.count_out_dir+'temp_tss.pkl'
-        # with open(tss_output,'wb') as f:
-        #     pickle.dump(transcriptdictls,f)
+        tss_output=self.count_out_dir+'temp_tss.pkl'
+        with open(tss_output,'wb') as f:
+            pickle.dump(transcriptdictls,f)
 
         extendls=[]
         for d in transcriptdictls:
