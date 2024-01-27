@@ -356,8 +356,11 @@ class get_TSS_count():
 
 
     def _do_anno_and_filter(self,inputpar):
+        #get gene ID
         geneid=inputpar[0]
+        #get list of TSS for gene ID
         altTSSitemdict=inputpar[1]
+        #get rows of reference for gene
         temprefdf=self.tssrefdf[self.tssrefdf['gene_id']==geneid]
 
         #print(geneid)
@@ -365,37 +368,53 @@ class get_TSS_count():
 
 
         #use Hungarian algorithm to assign cluster to corresponding transcript
+        # array filled with zeros. each row corresponds to a TSS, and each column corresponds to a transcript
         cost_mtx=np.zeros((len(altTSSitemdict),temprefdf.shape[0]))
+        #For each TSS
         for i in range(len(altTSSitemdict)):
+        #for each row in reference    
             for j in range(temprefdf.shape[0]):
                 cluster_val=altTSSitemdict[i][0]
 
                 #this cost matrix should be corrected
+                #finding the unique values in cluster_val and their counts
                 position,count=np.unique(cluster_val,return_counts=True)
+                #gettting most frequent position
                 mode_position=position[np.argmax(count)]
+                # absolute difference between mode_position and all ref TSS positions
+                #assigned value to corresponding position in the cost matrix
                 cost_mtx[i,j]=np.absolute(np.sum(mode_position-temprefdf.iloc[j,5]))
+        #2 arrays,assignment of the TSS at index row_ind[i] to the transcript at index col_ind[i]
         row_ind, col_ind = linear_sum_assignment(cost_mtx)
+        #creating a list of transcript IDs corresponding to the optimal assignment
+        #transcriptls[i] is the ID of the transcript assigned to the TSS at index row_ind[i]
         transcriptls=list(temprefdf.iloc[col_ind,:]['transcript_id'])
 
         # print(row_ind)
         # print(col_ind)
 
         #do quality control
+        # tssls[i] is the position of the ref TSS assigned to the transcript at index col_ind[i]
         tssls=list(temprefdf.iloc[col_ind,:]['TSS'])
         #print(tssls)
 
         transcriptdict={}
+        intermediate_dicts = []
         for i in range(0,len(tssls)):
+            #setting the minimum and maximum read positions for a cluster to be the bounds
+            #check if the reference tss positions that the tss cluster was assigned to
+            #falls within it. Name based on results
             if (tssls[i]>=np.min(altTSSitemdict[i][0])) & (tssls[i]<=np.max(altTSSitemdict[i][0])):
                 name1=str(geneid)+'_'+str(transcriptls[i])
                 transcriptdict[name1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             else:
                 newname1=str(geneid)+'_newTSS'
                 transcriptdict[newname1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
-        #print(transcriptdict)
-
-        with open('transcriptdict.pkl', 'wb') as f:
-            pickle.dump(transcriptdict, f)
+            
+            intermediate_dicts.append(transcriptdict.copy())
+        if len(altTSSitemdict) > 1:
+            with open(f'intermediate_dicts_{geneid}.pkl', 'wb') as f:
+                pickle.dump(intermediate_dicts, f)
 
         return transcriptdict
 
