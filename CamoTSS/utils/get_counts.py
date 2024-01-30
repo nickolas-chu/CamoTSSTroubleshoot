@@ -415,7 +415,8 @@ class get_TSS_count():
                 transcriptdict[name1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             else:
                 # increment count2
-                newname1=str(geneid)+'_newTSS'
+                count2 += 1
+                #newname1=str(geneid)+'_newTSS'
                 newname1=f"{geneid}_newTSS_{count2}" 
                 transcriptdict[newname1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             
