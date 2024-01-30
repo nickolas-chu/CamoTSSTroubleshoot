@@ -400,15 +400,23 @@ class get_TSS_count():
 
         transcriptdict={}
         intermediate_dicts = []
+        # initialize the counters
+        count1 = 0
+        count2 = 0
         for i in range(0,len(tssls)):
             #setting the minimum and maximum read positions for a cluster to be the bounds
             #check if the reference tss positions that the tss cluster was assigned to
             #falls within it. Name based on results
             if (tssls[i]>=np.min(altTSSitemdict[i][0])) & (tssls[i]<=np.max(altTSSitemdict[i][0])):
-                name1=str(geneid)+'_'+str(transcriptls[i])
+                # increment count1
+                count1 += 1
+                #name1=str(geneid)+'_'+str(transcriptls[i])
+                name1=f"{geneid}_{transcriptls[i]}_{count1}"
                 transcriptdict[name1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             else:
+                # increment count2
                 newname1=str(geneid)+'_newTSS'
+                newname1=f"{geneid}_newTSS_{count2}" 
                 transcriptdict[newname1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             
             intermediate_dicts.append(transcriptdict.copy())
