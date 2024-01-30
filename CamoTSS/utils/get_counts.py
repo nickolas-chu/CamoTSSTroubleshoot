@@ -364,40 +364,63 @@ class get_TSS_count():
         temprefdf=self.tssrefdf[self.tssrefdf['gene_id']==geneid]
 
         #print(geneid)
-        # print(altTSSdict)
+        #print(altTSSdict)
 
+        #preparing for cases where there are more TSS clusters than transcripts
 
-        #use Hungarian algorithm to assign cluster to corresponding transcript
-        # array filled with zeros. each row corresponds to a TSS, and each column corresponds to a transcript
-        cost_mtx=np.zeros((len(altTSSitemdict),temprefdf.shape[0]))
-        #For each TSS
-        for i in range(len(altTSSitemdict)):
-        #for each row in reference    
-            for j in range(temprefdf.shape[0]):
-                cluster_val=altTSSitemdict[i][0]
+        num_clusters = len(altTSSitemdict)
+        num_transcripts = temprefdf.shape[0]
 
-                #this cost matrix should be corrected
-                #finding the unique values in cluster_val and their counts
-                position,count=np.unique(cluster_val,return_counts=True)
-                #gettting most frequent position
-                mode_position=position[np.argmax(count)]
-                # absolute difference between mode_position and all ref TSS positions
-                #assigned value to corresponding position in the cost matrix
-                cost_mtx[i,j]=np.absolute(np.sum(mode_position-temprefdf.iloc[j,5]))
-        #2 arrays,assignment of the TSS at index row_ind[i] to the transcript at index col_ind[i]
-        row_ind, col_ind = linear_sum_assignment(cost_mtx)
-        #creating a list of transcript IDs corresponding to the optimal assignment
-        #transcriptls[i] is the ID of the transcript assigned to the TSS at index row_ind[i]
-        transcriptls=list(temprefdf.iloc[col_ind,:]['transcript_id'])
+        if num_clusters > num_transcripts:
+            # Determine the maximum number of TSS clusters that can be assigned to a single transcript
+            max_clusters_per_transcript = num_clusters
 
-        # print(row_ind)
-        # print(col_ind)
+            # Create duplicates of the transcripts
+            duplicated_transcripts = pd.concat([temprefdf]*max_clusters_per_transcript, ignore_index=True)
 
-        #do quality control
-        # tssls[i] is the position of the ref TSS assigned to the transcript at index col_ind[i]
-        tssls=list(temprefdf.iloc[col_ind,:]['TSS'])
-        #print(tssls)
+            # Calculate cost matrix with duplicated transcripts
+            cost_mtx = np.zeros((len(altTSSitemdict), len(duplicated_transcripts)))
+            for i in range(len(altTSSitemdict)):
+                for j in range(len(duplicated_transcripts)):
+                    cluster_val = altTSSitemdict[i][0]
+                    position, count = np.unique(cluster_val, return_counts=True)
+                    mode_position = position[np.argmax(count)]
+                    cost_mtx[i, j] = np.absolute(np.sum(mode_position - duplicated_transcripts.iloc[j, 5]))
 
+            # Use linear_sum_assignment with duplicated transcripts
+            row_ind, col_ind = linear_sum_assignment(cost_mtx)
+            #creating a list of transcript IDs corresponding to the optimal assignment
+            transcriptls=list(duplicated_transcripts.iloc[col_ind,:]['transcript_id'])
+            # tssls[i] is the position of the ref TSS assigned to the transcript at index col_ind[i]
+            tssls=list(duplicated_transcripts.iloc[col_ind,:]['TSS'])
+
+        else:
+            #use Hungarian algorithm to assign cluster to corresponding transcript
+            # array filled with zeros. each row corresponds to a TSS, and each column corresponds to a transcript
+            cost_mtx=np.zeros((len(altTSSitemdict),temprefdf.shape[0]))
+            #For each TSS
+            for i in range(len(altTSSitemdict)):
+            #for each row in reference    
+                for j in range(temprefdf.shape[0]):
+                    cluster_val=altTSSitemdict[i][0]
+    
+                    #this cost matrix should be corrected
+                    #finding the unique values in cluster_val and their counts
+                    position,count=np.unique(cluster_val,return_counts=True)
+                    #gettting most frequent position
+                    mode_position=position[np.argmax(count)]
+                    # absolute difference between mode_position and all ref TSS positions
+                    #assigned value to corresponding position in the cost matrix
+                    cost_mtx[i,j]=np.absolute(np.sum(mode_position-temprefdf.iloc[j,5]))
+            #2 arrays,assignment of the TSS at index row_ind[i] to the transcript at index col_ind[i]
+            row_ind, col_ind = linear_sum_assignment(cost_mtx)
+
+            #creating a list of transcript IDs corresponding to the optimal assignment
+            #transcriptls[i] is the ID of the transcript assigned to the TSS at index row_ind[i]
+            transcriptls=list(temprefdf.iloc[col_ind,:]['transcript_id'])
+            # tssls[i] is the position of the ref TSS assigned to the transcript at index col_ind[i]
+            tssls=list(temprefdf.iloc[col_ind,:]['TSS'])
+            
         transcriptdict={}
         intermediate_dicts = []
         # initialize the counters
