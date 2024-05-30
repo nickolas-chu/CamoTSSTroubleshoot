@@ -100,7 +100,7 @@ class get_TSS_count():
             reads1_umi=[r for r in reads1_umi if editdistance.eval(r.query_sequence[9:14],'ATGGG')<=4]
             reads1_umi=[r for r in reads1_umi if len(r.cigartuples)>=2]
             #print([i.cigarstring for i in reads1_umi])
-            reads1_umi=[r for r in reads1_umi if (r.cigartuples[0][0]==4)&(r.cigartuples[0][1]>6)&(r.cigartuples[0][1]<20)&(r.cigartuples[1][0]==0)&(r.cigartuples[1][1]>5)]
+            reads = [r for r in reads if (r.cigartuples[0][0] == 4) & (6 < r.cigartuples[0][1] < 20) & (r.cigartuples[1][0] == 0) & (r.cigartuples[1][1] > 5)]
             #print(reads1_umi)
             reads_info=[(r.reference_start,r.get_tag('CB'),r.cigarstring) for r in reads1_umi]
         
@@ -110,7 +110,7 @@ class get_TSS_count():
             reads1_umi=[r for r in reads1_umi if editdistance.eval(r.query_sequence[-13:-8],'CCCAT')<=4]
             reads1_umi=[r for r in reads1_umi if len(r.cigartuples)>=2]
             #print([i.cigarstring for i in reads1_umi])
-            reads1_umi=[r for r in reads1_umi if (r.cigartuples[0][0]==0)&(r.cigartuples[0][1]>5)&(r.cigartuples[1][0]==4)&(r.cigartuples[1][1]>6)&(r.cigartuples[1][1]<20)]
+            reads = [r for r in reads if (r.cigartuples[-2][0] == 0) & (r.cigartuples[-2][1] > 5) & (r.cigartuples[-1][0] == 4) & (6 < r.cigartuples[-1][1] < 20)]
             #print(reads1_umi)
             reads_info=[(r.reference_end,r.get_tag('CB'),r.cigarstring) for r in reads1_umi]
 
