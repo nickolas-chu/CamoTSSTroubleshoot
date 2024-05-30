@@ -422,7 +422,7 @@ class get_TSS_count():
             tssls=list(temprefdf.iloc[col_ind,:]['TSS'])
             
         transcriptdict={}
-        intermediate_dicts = []
+        #intermediate_dicts = []
         # initialize the counters
         count1 = 0
         count2 = 0
@@ -443,10 +443,10 @@ class get_TSS_count():
                 newname1=f"{geneid}_newTSS_{count2}" 
                 transcriptdict[newname1]=(altTSSitemdict[row_ind[i]][0],altTSSitemdict[row_ind[i]][1],altTSSitemdict[row_ind[i]][2])
             
-            intermediate_dicts.append(transcriptdict.copy())
-        if len(altTSSitemdict) > 1:
-            with open(f'intermediate_dicts_{geneid}.pkl', 'wb') as f:
-                pickle.dump(intermediate_dicts, f)
+            #intermediate_dicts.append(transcriptdict.copy())
+        #if len(altTSSitemdict) > 1:
+            #with open(f'intermediate_dicts_{geneid}.pkl', 'wb') as f:
+                #pickle.dump(intermediate_dicts, f)
 
         return transcriptdict
 
