@@ -426,6 +426,8 @@ class get_TSS_count():
         # initialize the counters
         count1 = 0
         count2 = 0
+
+        #Counters do not reset for when switching to the next transcript ID
         for i in range(0,len(tssls)):
             #setting the minimum and maximum read positions for a cluster to be the bounds
             #check if the reference tss positions that the tss cluster was assigned to
